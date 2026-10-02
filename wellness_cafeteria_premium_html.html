@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cafetería | Menú Digital Desktop</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        },
+        colors: {
+          cafeteria: {
+            bg: '#F4ECE6',
+            surface: '#FAF6F2',
+            card: '#FFFFFF',
+            primary: '#8D5B5F',
+            primaryDark: '#73464A',
+            pillBg: '#E8D8D0',
+            pillActive: '#C49B9E',
+            text: '#2C2223',
+            muted: '#8C7B7C',
+            accent: '#E3C1C3',
+            plusBg: '#ECDCD5',
+            plusHover: '#8D5B5F'
+          }
+        },
+        boxShadow: {
+          'soft': '0 10px 30px -5px rgba(141, 91, 95, 0.08)',
+          'card': '0 4px 15px rgba(44, 34, 35, 0.03)',
+          'floating': '0 14px 35px rgba(44, 34, 35, 0.18)'
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  body {
+    background-color: #F4ECE6;
+    color: #2C2223;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F4ECE6;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #C49B9E;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8D5B5F;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+</head>
+<body class="font-sans min-h-screen flex flex-col justify-between selection:bg-cafeteria-accent selection:text-cafeteria-text">
+
+  <header class="sticky top-0 z-30 bg-[#F4ECE6]/90 backdrop-blur-md border-b border-[#E3D4CB]/60 px-8 py-5 transition-all duration-300">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      
+      <!-- Back Arrow Button -->
+      <button onclick="smoothScrollTop()" class="w-11 h-11 rounded-full flex items-center justify-center text-cafeteria-text hover:bg-cafeteria-pillBg/60 transition-all duration-200 active:scale-95" title="Volver arriba">
+        <i class="fa-solid fa-chevron-left text-lg"></i>
+      </button>
+
+      <!-- Center Title -->
+      <h1 class="text-2xl font-bold tracking-tight text-cafeteria-text">Cafetería</h1>
+
+      <!-- Cart Icon with Badge -->
+      <button onclick="abrirCarrito()" class="relative w-11 h-11 rounded-full flex items-center justify-center text-cafeteria-text hover:bg-cafeteria-pillBg/60 transition-all duration-200 active:scale-95" title="Ver Carrito">
+        <i class="fa-solid fa-cart-shopping text-2xl"></i>
+        <span id="headerCartBadge" class="hidden absolute -top-1 -right-1 bg-cafeteria-primary text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#F4ECE6] animate-pulse">
+          0
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-8 pt-8 pb-32 flex-grow w-full">
+
+    <!-- HERO IMAGE BANNER -->
+    <section class="mb-10">
+      <div class="w-full h-[320px] md:h-[420px] rounded-3xl overflow-hidden shadow-soft relative group">
+        <img 
+          src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1600&auto=format&fit=crop" 
+          alt="Interior Cafetería" 
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+        <div class="absolute bottom-6 left-8 text-white">
+          <span class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider">Ambiente Cálido & Artesanal</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-cafeteria-text mb-4 opacity-80">MENÚ</h2>
+      
+      <div class="flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar" id="categoriesContainer">
+        <!-- Categories injected dynamically via JavaScript -->
+      </div>
+    </section>
+
+    <section class="mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="productsGrid">
+        <!-- Products injected dynamically via JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <div class="fixed bottom-8 left-0 right-0 z-40 px-8 pointer-events-none">
+    <div class="max-w-5xl mx-auto flex justify-center">
+      <button 
+        id="btnFloatingCart"
+        onclick="abrirCarrito()" 
+        class="pointer-events-auto w-full md:w-[680px] bg-cafeteria-primary hover:bg-cafeteria-primaryDark text-white py-4 px-8 rounded-2xl shadow-floating flex items-center justify-between transition-all duration-300 transform active:scale-[0.99] cursor-pointer"
+      >
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+            <i class="fa-solid fa-bag-shopping text-base"></i>
+          </div>
+          <span class="font-semibold text-lg" id="floatingCartText">Ver pedido (2)</span>
+        </div>
+        <span class="font-bold text-xl tracking-tight" id="floatingCartTotal">$7.700</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="cartModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex justify-end">
+    <div 
+      id="cartPanel" 
+      class="w-full max-w-md bg-cafeteria-surface h-full shadow-2xl flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-out p-8 overflow-y-auto"
+    >
+      <div>
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-6 border-b border-[#E3D4CB]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-cafeteria-pillBg flex items-center justify-center text-cafeteria-primary">
+              <i class="fa-solid fa-bag-shopping text-lg"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-cafeteria-text">Tu Pedido</h3>
+              <p class="text-xs text-cafeteria-muted">Detalle de tu selección</p>
+            </div>
+          </div>
+          <button onclick="cerrarCarrito()" class="w-10 h-10 rounded-full bg-cafeteria-pillBg flex items-center justify-center text-cafeteria-text hover:bg-cafeteria-accent transition-colors">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Items List -->
+        <div id="cartItemsContainer" class="py-6 space-y-4 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
+          <!-- Cart Items injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Footer / Actions -->
+      <div id="cartFooter" class="pt-6 border-t border-[#E3D4CB]">
+        <div class="flex items-center justify-between mb-6">
+          <span class="text-cafeteria-muted font-medium text-base">Total a pagar:</span>
+          <span class="text-3xl font-extrabold text-cafeteria-text tracking-tight" id="modalCartTotal">$7.700</span>
+        </div>
+        <button 
+          id="btnCheckout" 
+          onclick="confirmarPedido()" 
+          class="w-full bg-cafeteria-primary hover:bg-cafeteria-primaryDark text-white font-semibold py-4 rounded-2xl shadow-soft transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-base"
+        >
+          Confirmar Pedido
+        </button>
+      </div>
+
+      <!-- Success View Screen -->
+      <div id="successScreen" class="hidden flex-col items-center justify-center text-center my-auto py-10">
+        <div class="w-20 h-20 rounded-full bg-cafeteria-plusBg text-cafeteria-primary flex items-center justify-center text-4xl mb-6 shadow-soft animate-bounce">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-cafeteria-text mb-2">¡Pedido Confirmado!</h3>
+        <p class="text-cafeteria-muted text-sm max-w-xs mb-8">Estamos preparando tu café y delicatessen. Puedes retirarlo por la barra en unos minutos.</p>
+        <button onclick="reiniciarPedido()" class="w-full bg-cafeteria-primary hover:bg-cafeteria-primaryDark text-white font-semibold py-4 rounded-2xl transition-colors">
+          Volver al Menú
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // CATEGORIES DATA
+    const categories = ["Cafés", "Bebidas", "Comidas", "Dulces"];
+
+    // PRODUCTS CATALOG DATA
+    const products = [
+      {
+        id: 1,
+        category: "Cafés",
+        name: "Latte",
+        price: 3500,
+        img: "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=600&auto=format&fit=crop"
+      },
+      {
+        id: 2,
+        category: "Cafés",
+        name: "Cappuccino",
+        price: 3200,
+        img: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=600&auto=format&fit=crop"
+      },
+      {
+        id: 3,
+        category: "Bebidas",
+        name: "Smoothie Frutos Rojos",
+        price: 4000,
+        img: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?q=80&w=600&auto=format&fit=crop"
+      },
+      {
+        id: 4,
+        category: "Dulces",
+        name: "Cheesecake",
+        price: 4500,
+        img: "https://images.unsplash.com/photo-1524351199678-941a58a3df50?q=80&w=600&auto=format&fit=crop"
+      },
+      {
+        id: 5,
+        category: "Cafés",
+        name: "Flat White",
+        price: 3800,
+        img: "https://images.unsplash.com/photo-1585494156145-1c60a4fe952b?q=80&w=600&auto=format&fit=crop"
+      },
+      {
+        id: 6,
+        category: "Comidas",
+        name: "Avocado Toast",
+        price: 6500,
+        img: "https://images.unsplash.com/photo-1603048297172-c92544798d5e?q=80&w=600&auto=format&fit=crop"
+      },
+      {
+        id: 7,
+        category: "Dulces",
+        name: "Roll de Canela",
+        price: 4200,
+        img: "https://images.unsplash.com/photo-1509365465985-25d11c17e812?q=80&w=600&auto=format&fit=crop"
+      },
+      {
+        id: 8,
+        category: "Bebidas",
+        name: "Iced Matcha Latte",
+        price: 4300,
+        img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=600&auto=format&fit=crop"
+      }
+    ];
+
+    // INITIAL STATE WITH MATCHING REFERENCE ORDER (Latte $3.500 + Cheesecake $4.200 or matching $7.700 total)
+    let activeCategory = "Cafés";
+    let cart = [
+      { id: 1, quantity: 1 }, // Latte $3.500
+      { id: 7, quantity: 1 }  // Roll de Canela / Dulce $4.200 (Total = $7.700)
+    ];
+
+    // FORMAT CURRENCY ACCORDING TO LOCALE
+    function formatPrice(amount) {
+      return '$' + amount.toLocaleString('es-AR');
+    }
+
+    // RENDER CATEGORY PILLS
+    function renderCategories() {
+      const container = document.getElementById('categoriesContainer');
+      container.innerHTML = categories.map(cat => {
+        const isActive = cat === activeCategory;
+        const styleClasses = isActive 
+          ? "bg-cafeteria-pillBg text-cafeteria-primary font-bold shadow-sm ring-1 ring-cafeteria-primary/20" 
+          : "bg-cafeteria-pillBg/50 text-cafeteria-muted hover:bg-cafeteria-pillBg font-medium";
+        
+        return `
+          <button 
+            onclick="setCategory('${cat}')" 
+            class="px-7 py-2.5 rounded-full text-base transition-all duration-200 whitespace-nowrap ${styleClasses}"
+          >
+            ${cat}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // FILTER CATEGORY
+    function setCategory(cat) {
+      activeCategory = cat;
+      renderCategories();
+      renderProducts();
+    }
+
+    // RENDER PRODUCTS GRID (MATCHING IMAGE DESIGN)
+    function renderProducts() {
+      const container = document.getElementById('productsGrid');
+      const filtered = products.filter(p => p.category === activeCategory);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-2 text-center py-16 text-cafeteria-muted">
+            No hay productos disponibles en esta categoría.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => `
+        <div class="bg-cafeteria-card p-3.5 rounded-3xl flex items-center justify-between shadow-card hover:shadow-soft transition-all duration-300 group">
+          
+          <div class="flex items-center gap-4">
+            <img 
+              src="${p.img}" 
+              alt="${p.name}" 
+              class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 group-hover:scale-105 transition-transform duration-300"
+            />
+            <div>
+              <h3 class="font-bold text-cafeteria-text text-lg mb-1">${p.name}</h3>
+              <span class="text-cafeteria-muted font-semibold text-base">${formatPrice(p.price)}</span>
+            </div>
+          </div>
+
+          <button 
+            onclick="addToCart(${p.id})"
+            class="w-11 h-11 rounded-full bg-cafeteria-plusBg hover:bg-cafeteria-primary hover:text-white text-cafeteria-primary flex items-center justify-center transition-all duration-200 flex-shrink-0 mr-1 active:scale-90"
+            title="Agregar al pedido"
+          >
+            <i class="fa-solid fa-plus text-base"></i>
+          </button>
+
+        </div>
+      `).join('');
+    }
+
+    // GET TOTAL COUNT AND TOTAL PRICE
+    function getCartTotals() {
+      let totalCount = 0;
+      let totalPrice = 0;
+
+      cart.forEach(item => {
+        const prod = products.find(p => p.id === item.id);
+        if (prod) {
+          totalCount += item.quantity;
+          totalPrice += prod.price * item.quantity;
+        }
+      });
+
+      return { totalCount, totalPrice };
+    }
+
+    // UPDATE UI STATE FOR CART
+    function updateCartUI() {
+      const { totalCount, totalPrice } = getCartTotals();
+
+      // Floating Bottom Bar
+      document.getElementById('floatingCartText').innerText = `Ver pedido (${totalCount})`;
+      document.getElementById('floatingCartTotal').innerText = formatPrice(totalPrice);
+
+      // Header Badge
+      const badge = document.getElementById('headerCartBadge');
+      if (totalCount > 0) {
+        badge.innerText = totalCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      // Drawer Total & Checkout
+      document.getElementById('modalCartTotal').innerText = formatPrice(totalPrice);
+      document.getElementById('btnCheckout').disabled = totalCount === 0;
+
+      renderCartItems();
+    }
+
+    // RENDER ITEMS INSIDE DRAWER
+    function renderCartItems() {
+      const container = document.getElementById('cartItemsContainer');
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-16 text-cafeteria-muted">
+            <i class="fa-solid fa-basket-shopping text-4xl mb-3 text-cafeteria-accent"></i>
+            <p class="font-medium">Tu pedido está vacío</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = cart.map(item => {
+        const prod = products.find(p => p.id === item.id);
+        if (!prod) return '';
+
+        return `
+          <div class="flex items-center justify-between bg-cafeteria-card p-4 rounded-2xl border border-[#E3D4CB]/50 shadow-card">
+            <div class="flex items-center gap-3.5">
+              <img src="${prod.img}" alt="${prod.name}" class="w-14 h-14 rounded-xl object-cover">
+              <div>
+                <h4 class="font-bold text-base text-cafeteria-text">${prod.name}</h4>
+                <p class="text-xs text-cafeteria-muted font-medium">${formatPrice(prod.price)} x unidad</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-cafeteria-surface p-1 rounded-full border border-[#E3D4CB]/40">
+              <button onclick="changeQuantity(${item.id}, -1)" class="w-8 h-8 rounded-full bg-cafeteria-pillBg text-cafeteria-text flex items-center justify-center hover:bg-cafeteria-accent transition-colors text-xs">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <span class="font-bold text-sm w-5 text-center">${item.quantity}</span>
+              <button onclick="changeQuantity(${item.id}, 1)" class="w-8 h-8 rounded-full bg-cafeteria-plusBg text-cafeteria-primary flex items-center justify-center hover:bg-cafeteria-primary hover:text-white transition-colors text-xs">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ADD ITEM TO CART
+    function addToCart(productId) {
+      const existing = cart.find(item => item.id === productId);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ id: productId, quantity: 1 });
+      }
+
+      updateCartUI();
+
+      // Button animation effect
+      const btn = document.getElementById('btnFloatingCart');
+      btn.classList.add('scale-105');
+      setTimeout(() => btn.classList.remove('scale-105'), 200);
+    }
+
+    // CHANGE ITEM QUANTITY
+    function changeQuantity(productId, delta) {
+      const index = cart.findIndex(item => item.id === productId);
+      if (index !== -1) {
+        cart[index].quantity += delta;
+        if (cart[index].quantity <= 0) {
+          cart.splice(index, 1);
+        }
+      }
+      updateCartUI();
+    }
+
+    // MODAL VISIBILITY CONTROLS
+    function abrirCarrito() {
+      const modal = document.getElementById('cartModal');
+      const panel = document.getElementById('cartPanel');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      panel.classList.remove('translate-x-full');
+    }
+
+    function cerrarCarrito() {
+      const modal = document.getElementById('cartModal');
+      const panel = document.getElementById('cartPanel');
+      panel.classList.add('translate-x-full');
+      setTimeout(() => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+
+    // ORDER CONFIRMATION
+    function confirmarPedido() {
+      document.getElementById('cartItemsContainer').classList.add('hidden');
+      document.getElementById('cartFooter').classList.add('hidden');
+      document.getElementById('successScreen').classList.remove('hidden');
+      document.getElementById('successScreen').classList.add('flex');
+    }
+
+    // RESET ORDER
+    function reiniciarPedido() {
+      cart = [];
+      updateCartUI();
+      document.getElementById('cartItemsContainer').classList.remove('hidden');
+      document.getElementById('cartFooter').classList.remove('hidden');
+      document.getElementById('successScreen').classList.add('hidden');
+      document.getElementById('successScreen').classList.remove('flex');
+      cerrarCarrito();
+    }
+
+    // SMOOTH SCROLL TO TOP
+    function smoothScrollTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // INITIALIZATION ON LOAD
+    window.onload = function() {
+      renderCategories();
+      renderProducts();
+      updateCartUI();
+    };
+  </script>
+</body>
+</html>
